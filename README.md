@@ -1,8 +1,39 @@
 # AI-Powered Revenue Leakage Detection System
 
-An end-to-end analytics and machine learning project for identifying, quantifying, and predicting revenue leakage in e-commerce operations.
+<p align="center">
+  <a href="https://ai-powered-revenue-leakage-detection-system-99a3w4dnwjjmzzwwkp.streamlit.app/" target="_blank">
+    <img src="https://img.shields.io/badge/Live%20Demo-Open%20Streamlit%20App-00C853?style=for-the-badge&logo=streamlit&logoColor=white" alt="Live Demo">
+  </a>
+  <a href="https://github.com/suhani-chauhan56/AI-Powered-Revenue-Leakage-Detection-System" target="_blank">
+    <img src="https://img.shields.io/badge/GitHub-Source%20Code-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub">
+  </a>
+  <img src="https://img.shields.io/badge/Python-3.12%2B-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/ML-XGBoost%20%2B%20Scikit--Learn-1f77b4?style=for-the-badge" alt="ML Stack">
+</p>
 
-**Stack:** Python | SQL | XGBoost | Streamlit | Power BI
+<p align="center">
+  <b>End-to-end analytics and machine learning project for identifying, quantifying, and predicting revenue leakage in e-commerce operations.</b>
+</p>
+
+<p align="center">
+  <span style="color:#0ea5e9"><b>Python</b></span> •
+  <span style="color:#22c55e"><b>SQL</b></span> •
+  <span style="color:#f97316"><b>XGBoost</b></span> •
+  <span style="color:#38bdf8"><b>Streamlit</b></span> •
+  <span style="color:#8b5cf6"><b>Power BI</b></span>
+</p>
+
+---
+
+## Live Demo
+
+<div style="padding:16px; border-left:5px solid #00C853; background:#f8fafc; border-radius:10px;">
+
+Try the deployed dashboard here:
+
+**[Open the Streamlit app](https://ai-powered-revenue-leakage-detection-system-99a3w4dnwjjmzzwwkp.streamlit.app/)**
+
+</div>
 
 ---
 
