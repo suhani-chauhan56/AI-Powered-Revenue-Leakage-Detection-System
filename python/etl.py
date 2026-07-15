@@ -22,8 +22,11 @@ def build_fact_table(data_dir="data"):
     """Aggregates and joins order, items, payments, reviews, product categories, and sellers."""
     orders, items, payments, reviews, products, customers, sellers, cat_translation = load_raw(data_dir)
 
-    # Aggregate item level details to order level
-    items_agg = items.groupby("order_id").agg(
+    # Aggregate item-level details to order level.
+    # Sort by price first so the representative product/seller reflects the highest-value line item
+    # instead of the first row in the raw dataset.
+    items_sorted = items.sort_values(["order_id", "price", "order_item_id"], ascending=[True, False, True])
+    items_agg = items_sorted.groupby("order_id", sort=False).agg(
         n_items=("order_item_id", "count"),
         total_price=("price", "sum"),
         total_freight=("freight_value", "sum"),

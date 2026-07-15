@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import pickle
 import os
+import sys
+from sklearn.model_selection import train_test_split
 
 csv_path = "data/processed_fact_orders.csv"
 if not os.path.exists(csv_path):
@@ -15,8 +17,13 @@ print(df["leakage_amount"].describe())
 print("\nLeakage amount > 0 count:", (df["leakage_amount"] > 0).sum())
 print("75th percentile of leakage_amount:", df["leakage_amount"].quantile(0.75))
 
-# Let's inspect the target
-df["target_high_leakage"] = (df["leakage_amount"] > df["leakage_amount"].quantile(0.75)).astype(int)
+# Let's inspect the target using a training-only threshold
+leakage_train, leakage_test = train_test_split(
+    df["leakage_amount"], test_size=0.2, random_state=42
+)
+train_threshold = leakage_train.quantile(0.75)
+df["target_high_leakage"] = (df["leakage_amount"] > train_threshold).astype(int)
+print("Training-only 75th percentile threshold:", train_threshold)
 print("Target High Leakage class counts:")
 print(df["target_high_leakage"].value_counts())
 

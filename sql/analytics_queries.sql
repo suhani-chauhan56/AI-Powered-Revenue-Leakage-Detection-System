@@ -8,12 +8,17 @@ GROUP BY leakage_reason
 ORDER BY total_leakage DESC;
 
 -- 2. Monthly leakage trend with window functions
+WITH monthly AS (
+    SELECT order_month,
+           SUM(leakage_amount) AS monthly_leakage
+    FROM fact_orders_leakage
+    GROUP BY order_month
+)
 SELECT order_month,
-       ROUND(SUM(leakage_amount),2) AS monthly_leakage,
-       ROUND(SUM(SUM(leakage_amount)) OVER (ORDER BY order_month),2) AS cumulative_leakage,
-       ROUND(SUM(leakage_amount) - LAG(SUM(leakage_amount)) OVER (ORDER BY order_month),2) AS mom_change
-FROM fact_orders_leakage
-GROUP BY order_month
+       ROUND(monthly_leakage, 2) AS monthly_leakage,
+       ROUND(SUM(monthly_leakage) OVER (ORDER BY order_month), 2) AS cumulative_leakage,
+       ROUND(monthly_leakage - LAG(monthly_leakage) OVER (ORDER BY order_month), 2) AS mom_change
+FROM monthly
 ORDER BY order_month;
 
 -- 3. Worst sellers (ranked)
