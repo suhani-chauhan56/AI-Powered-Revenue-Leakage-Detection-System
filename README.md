@@ -1,174 +1,335 @@
 # AI-Powered Revenue Leakage Detection System
 
-### Olist E-commerce Dataset | Python • SQL • XGBoost • Streamlit • Power BI
+An end-to-end analytics and machine learning project for identifying, quantifying, and predicting revenue leakage in e-commerce operations.
 
-This repository houses an end-to-end analytics and machine learning solution designed to identify, quantify, and predict **Revenue Leakage** across e-commerce operations. 
-
-Using historical transaction data from **Olist** (100k+ orders in Brazil), the system models leakage signals—such as operational delays, severe customer dissatisfaction, and margin-eroding shipping rates—to advise financial executives (CFO/VP of Operations) on margin recovery opportunities.
+**Stack:** Python | SQL | XGBoost | Streamlit | Power BI
 
 ---
 
-## 1. Business Problem & Executive Framing
-For digital marketplaces, revenue leakage is a silent margin killer. It is often hidden across multiple operational silos (logistics delays, support refunds, credit defaults, or payment defaults).
-* **The Core Challenge**: Marketplace platforms like Olist do not have a column labeled "discount loss" or "refund cost". Leakage must be dynamically modeled by combining operational metrics with customer feedback proxies.
-* **The Goal**: Calculate exactly where margins are eroding, quantify the recovery value, and deploy an automated predictive firewall that flags high-risk transactions before they incur loss.
+## What This Project Does
+
+This project turns raw Olist marketplace data into a business-ready leakage intelligence workflow.
+
+- It builds a clean order-level fact table from multiple raw CSV sources.
+- It engineers operational proxy signals for leakage such as late delivery, low reviews, freight burden, and cancellations.
+- It loads the engineered data into SQL for reporting and analysis.
+- It trains a classification model to flag high-risk orders.
+- It delivers an interactive Streamlit dashboard for executives and analysts.
 
 ---
 
-## 2. System Architecture
+## Why This Matters
 
+Revenue leakage is often hidden in operational data rather than labeled directly.
+
+This project helps answer practical business questions like:
+
+- Which orders are most likely to create margin loss?
+- Which sellers or categories deserve operational attention?
+- How much leakage is recoverable if the team intervenes early?
+- Where should finance and operations focus first?
+
+---
+
+## Dataset Overview
+
+The project uses the public **Olist e-commerce dataset**, which contains transactional data for a large Brazilian marketplace.
+
+### Raw sources included
+
+- `data/olist_orders_dataset.csv`
+- `data/olist_order_items_dataset.csv`
+- `data/olist_order_payments_dataset.csv`
+- `data/olist_order_reviews_dataset.csv`
+- `data/olist_products_dataset.csv`
+- `data/olist_customers_dataset.csv`
+- `data/olist_sellers_dataset.csv`
+- `data/product_category_name_translation.csv`
+- `data/olist_geolocation_dataset.csv`
+
+### Processed output
+
+- `data/processed_fact_orders.csv`
+- `data/olist_leakage_db.db`
+
+### Processed dataset shape
+
+- **Rows:** 99,441 orders
+- **Columns:** 35 engineered fields
+
+### Important engineered fields
+
+- `is_cancelled`
+- `is_late`
+- `delay_days`
+- `is_low_review`
+- `freight_ratio`
+- `is_high_freight_burden`
+- `is_payment_issue`
+- `leakage_amount`
+- `leakage_reason`
+- `order_month`
+
+---
+
+## Key Outcomes
+
+On the included processed dataset, the pipeline surfaces these outcomes:
+
+- **Gross leakage:** about **R$ 1.17M**
+- **Orders with non-zero leakage:** **45,857**
+- **Largest leakage driver:** **High Freight Burden**
+- **Strongest customer-friction signals:** late delivery and low review combinations
+- **Model usage:** the Streamlit app can score a transaction in real time
+
+---
+
+## Key Insights
+
+- 🚚 **Freight burden is the biggest margin leak.** Shipping costs above the price threshold create the highest concentration of loss.
+- ⏱️ **Delivery delays are not just an operations issue.** They correlate with poor customer experience and financial leakage.
+- ⭐ **Low review scores are a useful proxy for after-sale risk.** They help identify refund and support pressure.
+- 🧾 **Cancellations are the cleanest leakage signal.** These are typically the most expensive and easiest to explain to stakeholders.
+- 🏷️ **A small number of categories and sellers drive a disproportionate share of leakage.** This is ideal for targeted remediation.
+
+---
+
+## Business Impact
+
+This project can help a finance or operations team:
+
+- prioritize recovery opportunities instead of reviewing every order manually
+- quantify margin loss in financial terms
+- identify sellers that need SLA review
+- spot product categories with costly freight patterns
+- create an early-warning system for risky transactions
+- support CFO-level reporting with a simple and repeatable leakage framework
+
+In a real company, the same logic could be used to:
+
+- reduce refunds and credits
+- improve shipping policy
+- improve seller scorecards
+- focus operations reviews on the highest-risk transactions
+
+---
+
+## System Architecture
+
+```text
+Raw Olist CSV files
+  ↓
+ETL pipeline (`python/etl.py`)
+  ↓
+Feature engineering (`python/transform.py`)
+  ↓
+Processed fact table (`data/processed_fact_orders.csv`)
+  ↓
+SQL warehouse load (`python/load_to_sql.py`)
+  ↓
+Analytics queries (`sql/analytics_queries.sql`)
+  ↓
+Model training (`notebooks/02_modeling.ipynb`)
+  ↓
+Streamlit dashboard (`streamlit/app.py`)
 ```
-Raw CSV Datasets (Olist)
-  │
-  ▼
-Python ETL Pipeline (python/etl.py) ──► Joins Orders, Payments, Reviews, Sellers, Categories
-  │
-  ▼
-Feature Engineering (python/transform.py) ──► Computes Leakage Amount, Reasons & Status Indicators
-  ├── Export to: data/processed_fact_orders.csv
-  │
-  ├──► Database Warehouse Load (python/load_to_sql.py) ──► MySQL (Production) / SQLite (Fallback)
-  │      └── Analytics Views (sql/analytics_queries.sql)
-  │
-  ├──► ML Model Pipeline (notebooks/02_modeling.ipynb)
-  │      ├── Preprocessing: Pipeline (Scaler + OneHotEncoder)
-  │      ├── Classifier: XGBoost (leakage_classifier_pipeline.pkl)
-  │      └── Anomaly Detection: Isolation Forest (anomaly_detector.pkl)
-  │
-  └──► Visualizations & Interface
-         ├── Streamlit Control Center (streamlit/app.py) ──► Live KPI Dashboard & AI Predictor Sandbox
-         └── Power BI Dashboard ──► Strategic CFO reporting
+
+---
+
+## Core Files
+
+- [`python/etl.py`](python/etl.py) builds the order-level fact table.
+- [`python/transform.py`](python/transform.py) engineers leakage signals and the leakage amount.
+- [`python/load_to_sql.py`](python/load_to_sql.py) exports the data and loads it into MySQL or SQLite.
+- [`sql/schema.sql`](sql/schema.sql) defines the warehouse schema.
+- [`sql/analytics_queries.sql`](sql/analytics_queries.sql) contains reporting queries.
+- [`notebooks/01_eda.ipynb`](notebooks/01_eda.ipynb) explores the dataset and validates patterns.
+- [`notebooks/02_modeling.ipynb`](notebooks/02_modeling.ipynb) trains the classifier and anomaly detector.
+- [`streamlit/app.py`](streamlit/app.py) hosts the interactive dashboard.
+
+---
+
+## Streamlit Dashboard
+
+The dashboard now includes:
+
+- executive KPIs
+- leakage-by-reason charts
+- monthly leakage trends
+- category and seller drilldowns
+- a live risk simulator
+- business impact summaries
+
+### What the simulator shows
+
+- predicted leakage risk
+- gauge visualization
+- estimated transaction impact
+- recommended mitigation steps
+
+---
+
+## How To Run
+
+### 1. Create and activate a virtual environment
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
 ```
 
----
+### 2. Install dependencies
 
-## 3. Operations Leakage Proxy Rules
-
-Since ground-truth financial loss isn't explicitly tagged in the raw dataset, the system engineers leakage amounts based on business-validated operational heuristics:
-
-| Operational Signal | Target Metric | Business Rule / Formula | Assumed Leakage Multiplier |
-| :--- | :--- | :--- | :--- |
-| **Cancelled Orders** | `is_cancelled` | Order status is `canceled` or `unavailable` | **100% of order price** |
-| **Late Deliveries + Poor Reviews** | `is_late` & `is_low_review` | Delivered date > Estimated date AND review score ≤ 2 | **70% of order price** (high refund risk) |
-| **Freight Margin Erosion** | `freight_ratio` > 0.3 | Shipping costs exceed 30% of item price | **Excess Freight Value** (`freight_ratio` - 0.3) * price |
-| **Severe Customer Dislike** | `is_low_review` | Review score is 1 or 2 (without delivery delay) | **20% of order price** (support overhead) |
-| **Standard Delivery Delay** | `is_late` | Delivered date > Estimated date | **10% of order price** (retention credits) |
-
-*Note: Overlaps are resolved sequentially in the order of severity listed above to avoid double-counting.*
-
----
-
-## 4. Database Setup & SQL Analytics
-
-Database tables are defined in [`sql/schema.sql`](file:///c:/Users/HP/Desktop/leakage%20Detection%20project/sql/schema.sql).
-
-Advanced analytical queries are provided in [`sql/analytics_queries.sql`](file:///c:/Users/HP/Desktop/leakage%20Detection%20project/sql/analytics_queries.sql) to extract immediate summaries:
-1. **Gross Leakage Categorization**: Highlights top operational leakage reasons.
-2. **Cumulative Financial Trend**: Uses SQL Window functions to calculate Cumulative Margin Loss and Month-over-Month (MoM) change.
-3. **High-Risk Seller Ranking**: Employs `RANK() OVER (ORDER BY SUM(leakage_amount) DESC)` to isolate the top 10 sellers responsible for logistics-based leakage.
-4. **Product Category Pareto Analysis**: Evaluates freight burden ratios and leakage rates across product classifications.
-
----
-
-## 5. Machine Learning Layer
-
-The modeling pipeline is detailed in [`notebooks/02_modeling.ipynb`](file:///c:/Users/HP/Desktop/leakage%20Detection%20project/notebooks/02_modeling.ipynb):
-* **Preprocessing Pipeline**: Integrates `SimpleImputer`, `StandardScaler` (for numerical metrics: price, freight, installments, delay days), and `OneHotEncoder` (for categoricals: payment type, product category) into a single reusable configuration block.
-* **XGBoost Classifier**: Predicts high-risk leakage orders (defined as orders falling in the top 25% of leakage severity). Preprocessing is bundled *inside* the exported classifier pipeline to prevent serve-time training skew.
-* **Isolation Forest Anomaly Detector**: Identifies outliers in price, freight ratios, and delay distributions to audit system anomalies.
-
----
-
-## 6. Power BI CFO Dashboard Configuration
-
-### Setup Instructions
-1. Import `data/processed_fact_orders.csv` or connect directly to the MySQL/SQLite database.
-2. Load/Create a Date table (`Calendar`) linked to `order_purchase_timestamp`.
-3. Set the `Calendar` table as the Date Table.
-
-### DAX Measures
-Create the following measures in your Power BI model:
-
-```dax
-Total Revenue = SUM(fact_orders_leakage[total_price])
-
-Total Leakage = SUM(fact_orders_leakage[leakage_amount])
-
-Leakage % = DIVIDE([Total Leakage], [Total Revenue], 0)
-
-Recovery Opportunity = [Total Leakage] * 0.5
-
-Late Delivery Rate = 
-DIVIDE(
-    COUNTROWS(FILTER(fact_orders_leakage, fact_orders_leakage[is_late] = TRUE)),
-    COUNTROWS(fact_orders_leakage)
-)
-
-MoM Leakage Change = 
-VAR CurrentMonth = [Total Leakage]
-VAR PrevMonth = CALCULATE([Total Leakage], DATEADD('Calendar'[Date], -1, MONTH))
-RETURN DIVIDE(CurrentMonth - PrevMonth, PrevMonth, 0)
+```powershell
+pip install -r requirements.txt
 ```
 
----
+### 3. Run the ETL step
 
-## 7. Streamlit Control Center
+```powershell
+python python/etl.py
+```
 
-The application ([`streamlit/app.py`](file:///c:/Users/HP/Desktop/leakage%20Detection%20project/streamlit/app.py)) provides a dashboard visual interface for executive stakeholder check-ups:
-* **Interactive KPIs & Plots**: Plotly charts visualizing trends, Pareto categorizations, and worst-performing sellers.
-* **Live Sandbox Simulator**: A dynamic form permitting users to simulate single order data to receive live predictions on margin risk using the trained XGBoost model.
+**Output:** builds the joined fact table and prints the final shape.
 
----
+### 4. Run feature engineering
 
-## 8. Local Setup & Execution Guide
+```powershell
+python python/transform.py
+```
 
-### Prerequisites
-* Python 3.10+
-* Virtual Environment utility (`venv`)
+**Output:** creates leakage flags, leakage amount, and leakage reasons.
 
-### Setup Instructions
+### 5. Run the full load pipeline
 
-1. **Clone and navigate to repository**:
-   ```bash
-   cd Revenue-Leakage-Detection
-   ```
+```powershell
+python python/load_to_sql.py
+```
 
-2. **Initialize and activate virtual environment**:
-   ```bash
-   python -m venv .venv
-   # Windows:
-   .venv\Scripts\activate
-   # macOS/Linux:
-   source .venv/bin/activate
-   ```
+**Output:** exports `data/processed_fact_orders.csv` and loads the table into SQL.
 
-3. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+### 6. Run the prediction smoke test
 
-4. **Execute ETL & Database pipeline**:
-   This extracts the raw Olist files, runs feature calculations, and loads records into `data/olist_leakage_db.db` (SQLite) or your configured MySQL server.
-   ```bash
-   python python/load_to_sql.py
-   ```
+```powershell
+python test_predictions.py
+```
 
-5. **Train ML Models**:
-   Run the Jupyter notebook to export the serializations:
-   ```bash
-   jupyter nbconvert --to notebook --execute --inplace notebooks/02_modeling.ipynb
-   ```
+**Output:** prints leakage stats and model prediction probabilities.
 
-6. **Launch Streamlit Dashboard**:
-   ```bash
-   streamlit run streamlit/app.py
-   ```
+### 7. Launch the dashboard
+
+```powershell
+streamlit run streamlit/app.py
+```
+
+**Output:** opens the interactive revenue leakage control center in your browser.
+
+### 8. Run the notebooks
+
+```powershell
+jupyter notebook
+```
+
+Open:
+
+- `notebooks/01_eda.ipynb`
+- `notebooks/02_modeling.ipynb`
 
 ---
 
-## 9. Interview Talking Points (Resume Positioning)
+## Expected Outputs
 
-If showcasing this project in technical interviews, focus on these engineering decisions to demonstrate professional senior analyst judgment:
-* **Handling Missing Ground Truth (Proxy Logic)**: *"Olist didn't have a label for revenue leakage. I defined logical operational proxies—like late deliveries paired with low satisfaction reviews representing refund risks—and parameterized the weights (0.7, 0.2, 0.1 multipliers) so that business stakeholders could easily recalibrate the sensitivity."*
-* **Production Pipeline Design**: *"I packaged the categorical encoder and StandardScaler directly inside the Scikit-learn ColumnTransformer and XGBoost pipeline before serialization. This prevents training-serving skew, meaning the Streamlit live predictor accepts raw dataframe inputs directly without duplicate encoding scripts."*
-* **Fault-Tolerant ETL**: *"I engineered the load script to dynamically check for MySQL database availability. If the connection fails or credentials aren't provided, it automatically falls back to an SQLite file database, ensuring full system functionality on local staging environments."*
+### `python/etl.py`
+
+- joins raw Olist tables
+- prints the fact table shape
+
+### `python/transform.py`
+
+- creates leakage labels
+- prints total leakage calculated
+
+### `python/load_to_sql.py`
+
+- exports the processed file
+- loads data into MySQL if configured
+- falls back to SQLite if MySQL is unavailable
+
+### `test_predictions.py`
+
+- inspects the leakage distribution
+- prints target counts
+- tests the saved model on low-risk and high-risk samples
+
+### `streamlit/app.py`
+
+- shows dashboard KPIs
+- renders leakage charts
+- displays prediction risk and mitigation guidance
+
+---
+
+## Machine Learning Layer
+
+The modeling notebook builds:
+
+- a preprocessing pipeline with imputation, scaling, and one-hot encoding
+- an `XGBClassifier` for high-leakage classification
+- an `IsolationForest` model for anomaly detection
+
+### Feature set
+
+Numeric:
+
+- `total_price`
+- `total_freight`
+- `freight_ratio`
+- `installments`
+- `delay_days`
+
+Categorical:
+
+- `payment_type`
+- `product_category_name_english`
+
+---
+
+## SQL Analytics
+
+The SQL layer includes queries for:
+
+- leakage by root cause
+- monthly leakage trend
+- seller ranking
+- category-level leakage
+- delivery funnel analysis
+
+Use these queries to power a BI dashboard or ad hoc reporting.
+
+---
+
+## Notes For Interview / Portfolio Use
+
+If you present this project in an interview, the strongest talking points are:
+
+- how you handled missing financial ground truth with business proxy rules
+- how you reduced training-serving skew by serializing the full preprocessing pipeline
+- how you built a fallback SQL loader to keep the system usable in local environments
+- how you translated operations signals into a financial risk story
+
+---
+
+## Files That Matter Most
+
+- [`README.md`](README.md)
+- [`python/etl.py`](python/etl.py)
+- [`python/transform.py`](python/transform.py)
+- [`python/load_to_sql.py`](python/load_to_sql.py)
+- [`streamlit/app.py`](streamlit/app.py)
+- [`notebooks/02_modeling.ipynb`](notebooks/02_modeling.ipynb)
+
+---
+
+## License / Data Note
+
+The Olist dataset is publicly available and used here for educational and portfolio purposes. If you publish this repository, make sure your usage complies with the dataset license and platform guidelines.
