@@ -198,8 +198,13 @@ The runtime requirements are intentionally minimal so the dashboard can deploy c
 - `plotly`
 - `scikit-learn`
 - `xgboost`
+
+Optional database packages for local ETL loading:
+
 - `SQLAlchemy`
 - `PyMySQL`
+
+If you only want to deploy the Streamlit dashboard, you do not need the optional database packages.
 
 ### 3. Run the ETL step
 

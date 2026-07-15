@@ -5,6 +5,5 @@ plotly==6.7.0
 scikit-learn==1.8.0
 xgboost==3.2.0
 
-# Optional runtime support for SQL/database utilities
-SQLAlchemy==2.0.50
-PyMySQL==1.2.0
+# Optional local-only utilities for database loading scripts.
+# Install them manually only if you want to run python/load_to_sql.py.
