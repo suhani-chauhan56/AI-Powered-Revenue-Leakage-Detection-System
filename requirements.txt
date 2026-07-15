@@ -1,14 +1,10 @@
+streamlit==1.56.0
 pandas==3.0.2
 numpy==2.4.4
-sqlalchemy==2.0.50
-pymysql==2.2.8
+plotly==6.7.0
 scikit-learn==1.8.0
 xgboost==3.2.0
-streamlit==1.56.0
-plotly==6.7.0
-matplotlib==3.10.9
-seaborn==0.13.2
-faker>=18.0.0
-ipykernel
-nbconvert
-jupyter
+
+# Optional runtime support for SQL/database utilities
+SQLAlchemy==2.0.50
+PyMySQL==1.2.0

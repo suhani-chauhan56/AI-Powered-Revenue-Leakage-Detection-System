@@ -184,6 +184,23 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
+### Deployment note
+
+For Streamlit Community Cloud, use Python 3.12 in the app settings. This repo also includes
+[`runtime.txt`](runtime.txt) as a version hint, but the Streamlit Cloud Python selector is the
+authoritative setting.
+
+The runtime requirements are intentionally minimal so the dashboard can deploy cleanly:
+
+- `streamlit`
+- `pandas`
+- `numpy`
+- `plotly`
+- `scikit-learn`
+- `xgboost`
+- `SQLAlchemy`
+- `PyMySQL`
+
 ### 3. Run the ETL step
 
 ```powershell
