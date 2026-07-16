@@ -361,28 +361,3 @@ Use these queries to power a BI dashboard or ad hoc reporting.
 
 ---
 
-## Notes For Interview / Portfolio Use
-
-If you present this project in an interview, the strongest talking points are:
-
-- how you handled missing financial ground truth with business proxy rules
-- how you reduced training-serving skew by serializing the full preprocessing pipeline
-- how you built a fallback SQL loader to keep the system usable in local environments
-- how you translated operations signals into a financial risk story
-
----
-
-## Files That Matter Most
-
-- [`README.md`](README.md)
-- [`python/etl.py`](python/etl.py)
-- [`python/transform.py`](python/transform.py)
-- [`python/load_to_sql.py`](python/load_to_sql.py)
-- [`streamlit/app.py`](streamlit/app.py)
-- [`notebooks/02_modeling.ipynb`](notebooks/02_modeling.ipynb)
-
----
-
-## License / Data Note
-
-The Olist dataset is publicly available and used here for educational and portfolio purposes. If you publish this repository, make sure your usage complies with the dataset license and platform guidelines.
